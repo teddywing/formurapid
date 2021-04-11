@@ -4,4 +4,7 @@ version = "0.0.1"
 edition = "2018"
 
 [dependencies]
+derive_builder = "0.10.0"
 pdf_forms = "0.3.4"
+serde = { version = "1.0.125", features = ["derive"]  }
+toml = "0.5.8"

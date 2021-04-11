@@ -1,3 +1,4 @@
+use anyhow;
 use derive_builder::Builder;
 use getopts::Options;
 use pdf_forms::{Form, FieldType};
@@ -61,7 +62,7 @@ fn main() {
             toml_path,
             form_path.with_file_name(output_file_name),
             &mut form,
-        );
+        ).unwrap();
     } else if opt_matches.opt_present("generate") {
         let ids_path = form_path.with_file_name(
             format!("{}-ids.pdf", form_file_prefix)
@@ -126,20 +127,22 @@ fn fill<P: AsRef<Path>>(
     data_path: P,
     output_path: P,
     form: &mut Form,
-) {
+) -> anyhow::Result<()> {
     let mut buf = Vec::new();
-    let mut file = File::open(data_path).unwrap();
-    file.read_to_end(&mut buf).unwrap();
+    let mut file = File::open(data_path)?;
+    file.read_to_end(&mut buf)?;
 
-    let data: TextForm = toml::from_slice(&buf).unwrap();
+    let data: TextForm = toml::from_slice(&buf)?;
 
     for field in data.fields {
         if let Some(value) = field.value {
-            form.set_text(field.id, value.to_owned()).unwrap();
+            form.set_text(field.id, value.to_owned())?;
         } else if let Some(state) = field.state {
-            form.set_check_box(field.id, state).unwrap();
+            form.set_check_box(field.id, state)?;
         }
     }
 
-    form.save(output_path).unwrap();
+    form.save(output_path)?;
+
+    Ok(())
 }

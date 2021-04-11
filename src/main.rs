@@ -30,6 +30,7 @@ fn main() {
 
     let mut opts = Options::new();
     opts.optflag("", "fill", "fill in the form using a markup file");
+    opts.optflag("", "generate", "generate helper files to fill in the form");
 
     let opt_matches = opts.parse(&args[1..]).unwrap();
 
@@ -53,8 +54,24 @@ fn main() {
         );
 
         return;
-    }
+    } else if opt_matches.opt_present("generate") {
+        let ids_path = form_path.with_file_name(
+            format!("{}-ids.pdf", form_file_prefix)
+        );
 
+        generate_fill_helpers(
+            toml_path,
+            ids_path,
+            &mut form,
+        );
+    }
+}
+
+fn generate_fill_helpers<P: AsRef<Path>>(
+    data_path: P,
+    output_path: P,
+    form: &mut Form,
+) {
     let mut data = TextForm::default();
 
     for i in 0..form.len() {
@@ -86,15 +103,11 @@ fn main() {
     let mut toml_file = OpenOptions::new()
         .create_new(true)
         .write(true)
-        .open(toml_path)
+        .open(data_path)
         .unwrap();
     toml_file.write_all(&toml::to_vec(&data).unwrap()).unwrap();
 
-    form.save(
-        form_path.with_file_name(
-            format!("{}-ids.pdf", form_file_prefix)
-        ),
-    ).unwrap();
+    form.save(output_path).unwrap();
 }
 
 fn fill<P: AsRef<Path>>(

@@ -1,3 +1,5 @@
+Name: formurapid, a combination of "form" and "PDF"
+
 [--option]
 Write a version of the PDF with all fields filled with their field ID
 

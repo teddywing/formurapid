@@ -1,4 +1,5 @@
 Name: formurapid, a combination of "form" and "PDF"
+Inspired by: https://pypi.org/project/pdfforms/
 
 [--option]
 Write a version of the PDF with all fields filled with their field ID

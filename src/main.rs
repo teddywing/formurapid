@@ -1,4 +1,5 @@
 use derive_builder::Builder;
+use getopts::Options;
 use pdf_forms::{Form, FieldType};
 use serde::{Deserialize, Serialize};
 
@@ -27,9 +28,20 @@ struct Field<'a> {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let mut form = Form::load("./f1040.pdf").unwrap();
+    let mut opts = Options::new();
+    opts.optflag("", "fill", "fill in the form using a markup file");
 
-    if args.len() == 2 && args[1] == "--fill" {
+    let opt_matches = opts.parse(&args[1..]).unwrap();
+
+    if opt_matches.free.is_empty() {
+        return;
+    }
+
+    let form_path = &opt_matches.free[0];
+
+    let mut form = Form::load(form_path).unwrap();
+
+    if opt_matches.opt_present("fill") {
         fill("./f1040.toml", &mut form);
 
         return;

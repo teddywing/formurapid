@@ -37,12 +37,20 @@ fn main() {
         return;
     }
 
-    let form_path = &opt_matches.free[0];
+    let form_path = Path::new(&opt_matches.free[0]);
+    let form_file_prefix = form_path.file_stem().unwrap().to_str().unwrap();
+    let toml_file_name = format!("{}.toml", form_file_prefix);
+    let toml_path = form_path.with_file_name(toml_file_name);
+    let output_file_name = format!("{}-filled.pdf", form_file_prefix);
 
     let mut form = Form::load(form_path).unwrap();
 
     if opt_matches.opt_present("fill") {
-        fill("./f1040.toml", &mut form);
+        fill(
+            toml_path,
+            form_path.with_file_name(output_file_name),
+            &mut form,
+        );
 
         return;
     }
@@ -78,14 +86,22 @@ fn main() {
     let mut toml_file = OpenOptions::new()
         .create_new(true)
         .write(true)
-        .open("f1040.toml")
+        .open(toml_path)
         .unwrap();
     toml_file.write_all(&toml::to_vec(&data).unwrap()).unwrap();
 
-    form.save("./f1040-new.pdf").unwrap();
+    form.save(
+        form_path.with_file_name(
+            format!("{}-ids.pdf", form_file_prefix)
+        ),
+    ).unwrap();
 }
 
-fn fill<P: AsRef<Path>>(data_path: P, form: &mut Form) {
+fn fill<P: AsRef<Path>>(
+    data_path: P,
+    output_path: P,
+    form: &mut Form,
+) {
     let mut buf = Vec::new();
     let mut file = File::open(data_path).unwrap();
     file.read_to_end(&mut buf).unwrap();
@@ -100,5 +116,5 @@ fn fill<P: AsRef<Path>>(data_path: P, form: &mut Form) {
         }
     }
 
-    form.save("./f1040-filled.pdf").unwrap();
+    form.save(output_path).unwrap();
 }

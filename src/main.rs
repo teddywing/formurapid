@@ -35,13 +35,24 @@ fn print_usage(opts: &Options) {
 }
 
 fn main() {
+    match run() {
+        Ok(_) => (),
+        Err(e) => {
+            eprintln!("error: {}", e);
+
+            process::exit(exitcode::SOFTWARE);
+        },
+    }
+}
+
+fn run() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     let mut opts = Options::new();
     opts.optflag("", "fill", "fill in the form using a markup file");
     opts.optflag("", "generate", "generate helper files to fill in the form");
 
-    let opt_matches = opts.parse(&args[1..]).unwrap();
+    let opt_matches = opts.parse(&args[1..])?;
 
     if opt_matches.free.is_empty() {
         print_usage(&opts);
@@ -50,29 +61,34 @@ fn main() {
     }
 
     let form_path = Path::new(&opt_matches.free[0]);
-    let form_file_prefix = form_path.file_stem().unwrap().to_str().unwrap();
+    let form_file_prefix = form_path
+        .file_stem()
+        .ok_or(anyhow::anyhow!("no file name"))?
+        .to_str()
+        .ok_or(anyhow::anyhow!("error converting file name"))?;
+
     let toml_file_name = format!("{}.toml", form_file_prefix);
     let toml_path = form_path.with_file_name(toml_file_name);
     let output_file_name = format!("{}-filled.pdf", form_file_prefix);
 
-    let mut form = Form::load(form_path).unwrap();
+    let mut form = Form::load(form_path)?;
 
     if opt_matches.opt_present("fill") {
-        fill(
+        return fill(
             toml_path,
             form_path.with_file_name(output_file_name),
             &mut form,
-        ).unwrap();
+        );
     } else if opt_matches.opt_present("generate") {
         let ids_path = form_path.with_file_name(
             format!("{}-ids.pdf", form_file_prefix)
         );
 
-        generate_fill_helpers(
+        return generate_fill_helpers(
             toml_path,
             ids_path,
             &mut form,
-        ).unwrap();
+        );
     } else {
         print_usage(&opts);
 

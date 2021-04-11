@@ -7,6 +7,7 @@ use std::env;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
 use std::path::Path;
+use std::process;
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 struct TextForm<'a> {
@@ -25,6 +26,13 @@ struct Field<'a> {
     state: Option<bool>,
 }
 
+fn print_usage(opts: &Options) {
+    print!(
+        "{}",
+        opts.usage("usage: formurapid [options] (--generate | --fill) PDF_FILE"),
+    );
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -35,7 +43,9 @@ fn main() {
     let opt_matches = opts.parse(&args[1..]).unwrap();
 
     if opt_matches.free.is_empty() {
-        return;
+        print_usage(&opts);
+
+        process::exit(exitcode::USAGE);
     }
 
     let form_path = Path::new(&opt_matches.free[0]);
@@ -52,8 +62,6 @@ fn main() {
             form_path.with_file_name(output_file_name),
             &mut form,
         );
-
-        return;
     } else if opt_matches.opt_present("generate") {
         let ids_path = form_path.with_file_name(
             format!("{}-ids.pdf", form_file_prefix)
@@ -64,6 +72,10 @@ fn main() {
             ids_path,
             &mut form,
         );
+    } else {
+        print_usage(&opts);
+
+        process::exit(exitcode::USAGE);
     }
 }
 

@@ -72,7 +72,7 @@ fn main() {
             toml_path,
             ids_path,
             &mut form,
-        );
+        ).unwrap();
     } else {
         print_usage(&opts);
 
@@ -84,7 +84,7 @@ fn generate_fill_helpers<P: AsRef<Path>>(
     data_path: P,
     output_path: P,
     form: &mut Form,
-) {
+) -> anyhow::Result<()> {
     let mut data = TextForm::default();
 
     for i in 0..form.len() {
@@ -92,21 +92,21 @@ fn generate_fill_helpers<P: AsRef<Path>>(
 
         match field_type {
             FieldType::Text => {
-                form.set_text(i, format!("{}", i)).unwrap();
+                form.set_text(i, format!("{}", i))?;
 
-                data.fields.push(FieldBuilder::default()
-                    .id(i)
-                    .value(Some(""))
-                    .build()
-                    .unwrap()
+                data.fields.push(
+                    FieldBuilder::default()
+                        .id(i)
+                        .value(Some(""))
+                        .build()?
                 );
             },
             FieldType::CheckBox => {
-                data.fields.push(FieldBuilder::default()
-                    .id(i)
-                    .state(Some(false))
-                    .build()
-                    .unwrap()
+                data.fields.push(
+                    FieldBuilder::default()
+                        .id(i)
+                        .state(Some(false))
+                        .build()?
                 );
             },
             _ => (),
@@ -116,11 +116,12 @@ fn generate_fill_helpers<P: AsRef<Path>>(
     let mut toml_file = OpenOptions::new()
         .create_new(true)
         .write(true)
-        .open(data_path)
-        .unwrap();
-    toml_file.write_all(&toml::to_vec(&data).unwrap()).unwrap();
+        .open(data_path)?;
+    toml_file.write_all(&toml::to_vec(&data)?)?;
 
-    form.save(output_path).unwrap();
+    form.save(output_path)?;
+
+    Ok(())
 }
 
 fn fill<P: AsRef<Path>>(

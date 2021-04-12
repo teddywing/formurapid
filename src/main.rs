@@ -96,6 +96,10 @@ fn run() -> anyhow::Result<()> {
     }
 }
 
+/// Generate files to fill in the form.
+///
+/// Generates a TOML file at `data_path`, and a PDF with IDs entered in the
+/// form's text fields in `output_path`.
 fn generate_fill_helpers<P: AsRef<Path>>(
     data_path: P,
     output_path: P,
@@ -140,6 +144,7 @@ fn generate_fill_helpers<P: AsRef<Path>>(
     Ok(())
 }
 
+/// Fill in `form` with values from `data_path` and write to `output_path`.
 fn fill<P: AsRef<Path>>(
     data_path: P,
     output_path: P,

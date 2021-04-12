@@ -52,7 +52,20 @@ fn run() -> anyhow::Result<()> {
     opts.optflag("", "fill", "fill in the form using a markup file");
     opts.optflag("", "generate", "generate helper files to fill in the form");
 
+    opts.optflag("h", "help", "print this help menu");
+    opts.optflag("V", "version", "show the program version");
+
     let opt_matches = opts.parse(&args[1..])?;
+
+    if opt_matches.opt_present("h") {
+        print_usage(&opts);
+        process::exit(exitcode::USAGE);
+    }
+
+    if opt_matches.opt_present("V") {
+        println!("{}", env!("CARGO_PKG_VERSION"));
+        process::exit(exitcode::OK);
+    }
 
     if opt_matches.free.is_empty() {
         print_usage(&opts);

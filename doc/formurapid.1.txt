@@ -11,6 +11,26 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
+Fill in a PDF form based on the values in a TOML text file. This allows the
+values to be saved and reused. The TOML file can also be manipulated by
+external programs to calculate or fill in values in an interoperable format
+without having to directly manipulate the PDF.
+
+First, generate the TOML file with:
+
+	$ formurapid --generate a-form.pdf
+
+This will produce two files: 'a-form-ids.pdf' and 'a-form.toml'. The IDs PDF
+includes text fields filled in with their corresponding ID. The TOML file
+associates values with field IDs.
+
+Once the TOML file is generated and stored in the same directory as
+'a-form.pdf', the form can be filled in with:
+
+	$ formurapid --fill a-form.pdf
+
+The above command generates a file 'a-form-filled.pdf', a version of
+'a-form.pdf' with form fields filled using the values in 'a-form.toml'.
 
 OPTIONS
 -------

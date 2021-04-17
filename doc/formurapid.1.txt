@@ -14,3 +14,17 @@ DESCRIPTION
 
 OPTIONS
 -------
+--fill::
+	Fill in the input form based on a TOML file with the same file name stem in
+	the same directory. The TOML file is generated with the '--generate'
+	argument.
+
+--generate::
+	Generate a TOML file to fill in the form as well as a copy of the PDF with
+	IDs filled into the text fields.
+
+-h, --help::
+	Print usage help.
+
+-V, --version::
+	Print the program version.

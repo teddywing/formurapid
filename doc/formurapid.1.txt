@@ -7,7 +7,7 @@ formurapid - Fill in a PDF form using a text file
 
 SYNOPSIS
 --------
-'formurapid' [options] (--generate | --fill) 'pdf_file'
+'formurapid' [options] (--generate | --fill) 'pdf_file' '...'
 
 DESCRIPTION
 -----------

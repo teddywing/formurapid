@@ -46,7 +46,7 @@ struct Field<'a> {
 fn print_usage(opts: &Options) {
     print!(
         "{}",
-        opts.usage("usage: formurapid [options] (--generate | --fill) PDF_FILE"),
+        opts.usage("usage: formurapid [options] (--generate | --fill) PDF_FILE..."),
     );
 }
 
@@ -89,40 +89,44 @@ fn run() -> anyhow::Result<()> {
         process::exit(exitcode::USAGE);
     }
 
-    let form_path = Path::new(&opt_matches.free[0]);
-    let form_file_prefix = form_path
-        .file_stem()
-        .ok_or(anyhow::anyhow!("no file name"))?
-        .to_str()
-        .ok_or(anyhow::anyhow!("error converting file name"))?;
+    for pdf_path in &opt_matches.free {
+        let form_path = Path::new(&pdf_path);
+        let form_file_prefix = form_path
+            .file_stem()
+            .ok_or(anyhow::anyhow!("no file name"))?
+            .to_str()
+            .ok_or(anyhow::anyhow!("error converting file name"))?;
 
-    let toml_file_name = format!("{}.toml", form_file_prefix);
-    let toml_path = form_path.with_file_name(toml_file_name);
-    let output_file_name = format!("{}-filled.pdf", form_file_prefix);
+        let toml_file_name = format!("{}.toml", form_file_prefix);
+        let toml_path = form_path.with_file_name(toml_file_name);
+        let output_file_name = format!("{}-filled.pdf", form_file_prefix);
 
-    let mut form = Form::load(form_path)?;
+        let mut form = Form::load(form_path)?;
 
-    if opt_matches.opt_present("fill") {
-        return fill(
-            toml_path,
-            form_path.with_file_name(output_file_name),
-            &mut form,
-        );
-    } else if opt_matches.opt_present("generate") {
-        let ids_path = form_path.with_file_name(
-            format!("{}-ids.pdf", form_file_prefix)
-        );
+        if opt_matches.opt_present("fill") {
+            fill(
+                toml_path,
+                form_path.with_file_name(output_file_name),
+                &mut form,
+            )?;
+        } else if opt_matches.opt_present("generate") {
+            let ids_path = form_path.with_file_name(
+                format!("{}-ids.pdf", form_file_prefix)
+            );
 
-        return generate_fill_helpers(
-            toml_path,
-            ids_path,
-            &mut form,
-        );
-    } else {
-        print_usage(&opts);
+            generate_fill_helpers(
+                toml_path,
+                ids_path,
+                &mut form,
+            )?;
+        } else {
+            print_usage(&opts);
 
-        process::exit(exitcode::USAGE);
+            process::exit(exitcode::USAGE);
+        }
     }
+
+    Ok(())
 }
 
 /// Generate files to fill in the form.

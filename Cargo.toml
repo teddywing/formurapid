@@ -9,5 +9,5 @@ derive_builder = "0.10.0"
 exitcode = "1.1.2"
 getopts = "0.2.21"
 pdf_forms = "0.3.4"
-serde = { version = "1.0.125", features = ["derive"]  }
+serde = { version = "1.0.125", features = ["derive"] }
 toml = "0.5.8"

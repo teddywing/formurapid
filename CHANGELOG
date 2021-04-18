@@ -1,0 +1,12 @@
+CHANGELOG
+=========
+
+v0.0.2 (2021-04-18):
+	Changes:
+
+	* Accept multiple PDF input arguments.
+
+v0.0.1 (2021-04-18):
+	First public release.
+
+ vim:tw=80:comments=:fo+=n:formatlistpat=^\\s*\\*\\s*
